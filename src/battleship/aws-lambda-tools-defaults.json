@@ -7,6 +7,5 @@
   "framework": "netcoreapp3.1",
   "function-runtime": "dotnetcore3.1",
   "function-memory-size": 256,
-  "function-timeout": 30,
-  "function-handler": "battleship::battleship.Function::FunctionHandler"
+  "function-timeout": 30
 }

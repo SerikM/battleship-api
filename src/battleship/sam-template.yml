@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: This is a lambda service application used by a battleship game
+Resources:
+  BattleshipInitializeFunction:
+    Type: AWS::Serverless::Function
+    FunctionName: BattleshipInitializeFunction
+    Properties:
+      Handler: battleship::battleship.Function::InitializeGameHandler
+      Runtime: dotnetcore3.1
+      CodeUri: s3://cfbattleship/462768647204d00bb6a3f3b58aa4a6a7
+      Environment:
+        Variables:
+          S3_BUCKET: tyrkamotchkacfsambucket
+      Events:
+        StartGame:
+          Type: Api
+          Properties:
+            Path: /initialize
+            Method: POST
+  BattleshipShootFunction:
+    Type: AWS::Serverless::Function
+    FunctionName: BattleshipShootFunction
+    Properties:
+      Handler: battleship::battleship.Function::ShootHandler
+      Runtime: dotnetcore3.1
+      CodeUri: s3://cfbattleship/462768647204d00bb6a3f3b58aa4a6a7
+      Environment:
+        Variables:
+          S3_BUCKET: tyrkamotchkacfsambucket
+      Events:
+        Shoot:
+          Type: Api
+          Properties:
+            Path: /shoot
+            Method: POST
