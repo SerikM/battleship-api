@@ -7,32 +7,15 @@ Resources:
     Type: AWS::Serverless::Function
     FunctionName: BattleshipInitializeFunction
     Properties:
-      Handler: battleship::battleship.Function::InitializeGameHandler
+      Handler: battleship::battleship.LambdaEntryPoint::FunctionHandlerAsync
       Runtime: dotnetcore3.1
       CodeUri: bin/Release/netcoreapp3.1/battleship.zip
       Environment:
         Variables:
           S3_BUCKET: tyrkamotchkacfsambucket
       Events:
-        StartGame:
+        ProxyResource:
           Type: Api
           Properties:
-            Path: /initialize
-            Method: POST
-
-  BattleshipShootFunction:
-    Type: AWS::Serverless::Function
-    FunctionName: BattleshipShootFunction
-    Properties:
-      Handler: battleship::battleship.Function::ShootHandler
-      Runtime: dotnetcore3.1
-      CodeUri: bin/Release/netcoreapp3.1/battleship.zip
-      Environment:
-        Variables:
-          S3_BUCKET: tyrkamotchkacfsambucket
-      Events:
-        Shoot:
-          Type: Api
-          Properties:
-            Path: /shoot
-            Method: POST
+            Path: "/{proxy+}"
+            Method: ANY

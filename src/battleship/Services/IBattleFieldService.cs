@@ -2,9 +2,9 @@
 
 namespace battleship.Services
 {
-    interface IBattleFieldService
+    public interface IBattleFieldService
     {
-        public bool CreateNewBattlefield(Ship ship);
-        public bool MakeShot(Shot shot);
+        public bool AddShip(Ship ship);
+        public bool Attack(Shot shot);
     }
 }

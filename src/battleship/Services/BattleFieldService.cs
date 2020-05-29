@@ -1,4 +1,5 @@
 ﻿using battleship.Models;
+using battleship.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,43 +9,37 @@ namespace battleship.Services
     public class BattleFieldService : IBattleFieldService
     {
         private const int MaxBoardSize = 10;
-        private Battlefield Battlefield { get; set; }
+        private readonly IMockRepository _mockRepo;
 
+        public BattleFieldService(IMockRepository mockRepo) 
+        {
+            _mockRepo = mockRepo;
+        }
 
-        public bool MakeShot(Shot shot)
+        public bool Attack(Shot shot)
         {
             var board = GetPlayerBoard(shot.PlayerId);
             if (board == null) return false;
             
             var location = board.Ships.SelectMany(p => p.Locations).FirstOrDefault(d => d.Row == shot.Row && d.Column == shot.Column);
-            if (location == null)
-            {
-                location.Miss = true;
-                return false;
-            }
+            if (location == null)return false;
 
             return location.Hit = true;
         }
 
-        public bool CreateNewBattlefield(Ship newShip)
+        public bool AddShip(Ship newShip)
         {
-            if (Battlefield == null)
+            var battleField = _mockRepo.GetCurrentBattlefield();
+            if (battleField == null)
             {
-                Battlefield = new Battlefield()
+                _mockRepo.SetBattleField(new Battlefield()
                 {
-                    Boards = new List<PlayerBoard>()
-                            {
-                                new PlayerBoard()
-                                {
-                                    PlayerId = newShip.PlayerId,
-                                    Ships = new List<Ship>
-                                    {
-                                        newShip
-                                    }
-                                },
-                                new PlayerBoard()
-                            }
-                };
+                    Boards = 
+                    new List<PlayerBoard>()
+                    {
+                       new PlayerBoard() { PlayerId = newShip.PlayerId, Ships = new List<Ship> { newShip } }, 
+                    }
+                });
             }
             else
             {
@@ -56,45 +51,45 @@ namespace battleship.Services
             return true;
         }
 
-        private bool CanAddShip(PlayerBoard board, Ship newShip)
+        public bool CanAddShip(PlayerBoard board, Ship newShip)
         {
-            bool correctSize = IsCorrectSize(board.Ships, newShip);
+            bool correctSize = IsValidLength(board.Ships, newShip);
             if (!correctSize) return false;
-            bool correctShape = IsCorrectShape(newShip.Locations);
+            bool correctShape = IsValidAalignment(newShip.Locations);
             if (!correctShape) return false;
             bool isOversize = IsOversize(newShip.Locations);
             if (isOversize) return false;
-            return HasNeighbouringCells(board.Ships, newShip.Locations);
+            return !HasNeighbouringCells(board.Ships, newShip.Locations);
         }
 
-        private bool IsOversize(List<Location> locations)
+        public bool IsOversize(List<Location> locations)
         {
             return locations.Any(p => p.Column > MaxBoardSize || p.Column <= 0 || p.Row > MaxBoardSize || p.Row <= 0);
         }
 
-        private bool IsCorrectSize(List<Ship> ships, Ship ship)
+        public bool IsValidLength(List<Ship> ships, Ship ship)
         {
             var sizeOK = ship.Locations.Any() && ship.Locations.Count <= MaxBoardSize;
             if (!sizeOK) return false;
             return ships.Select(p => p.Locations).Count() + ship.Locations.Count <= Math.Pow(MaxBoardSize, 2);
         }
 
-        private bool HasNeighbouringCells(List<Ship> ships, List<Location> locations)
+        public bool HasNeighbouringCells(List<Ship> ships, List<Location> locations)
         {
             //:TO:DO implement logic using Connected-component labeling
             return false;
         }
 
-        private bool IsCorrectShape(List<Location> locations)
+        public bool IsValidAalignment(List<Location> locations)
         {
             bool rowsAligned = locations.Select(p => p.Row).Distinct().Count() == 1;
             bool colsAligned = locations.Select(p => p.Column).Distinct().Count() == 1;
             return rowsAligned || colsAligned;
         }
 
-        private PlayerBoard GetPlayerBoard(string playeId)
+        public PlayerBoard GetPlayerBoard(string playeId)
         {
-            return Battlefield.Boards.FirstOrDefault(p => p.PlayerId == playeId);
+            return _mockRepo.GetCurrentBattlefield()?.Boards?.FirstOrDefault(p => p.PlayerId == playeId);
         }
     }
 }
