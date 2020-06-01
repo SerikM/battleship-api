@@ -31,13 +31,13 @@ This application is based on the aws serverless application model (SAM) and is w
  - The api can be tested using postman.
  - In order to create the playing field and to place a ship on one of the playing boards the following call may be used:
 
-   https://<host url>/Prod/v1/default (use PUT method) 
+   https://[host url]/Prod/v1/default (use PUT method) 
  - example payload:  {"PlayerId": "123", "Locations": [{"Row": 1, "Column": 2}]}
 
  - The above call will creat a board for the player with ID 123 and will place a ship that consists of one cell into  coordinates  (1 : 2). To make a larger ship add more elements to the Locations collection.
  - In order to make an attack on a ship use the following:
 
-   https://<host url>/Prod/v1/default (use POST method) 
+   https://[host url]/Prod/v1/default (use POST method) 
  - example payload: {"PlayerId":"123", "Row":1, "Column": 2}
 
  - The above call will retun return message "hit". If, for example, we use payload with {"PlayerId":"123", "Row":1, "Column": 3} the api is expected to return "miss". 
